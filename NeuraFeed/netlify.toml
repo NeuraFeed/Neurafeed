@@ -1,3 +1,0 @@
-# This configuration file tells Netlify where to find the serverless functions.
-[functions]
-  directory = "netlify/functions"

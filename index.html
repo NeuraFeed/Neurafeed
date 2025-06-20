@@ -381,14 +381,6 @@
         let isFetching = false;
         let audioPlayer = new Audio();
         let longSummaryForTTS = "";
-        const synth = window.speechSynthesis;
-        let germanVoice = null;
-
-        // --- FIX for Preview Environment ---
-        // When running locally or in a preview, /.netlify/... is not a valid path.
-        // We detect if we are on a "real" domain or in a local/preview environment.
-        const isLive = window.location.hostname.includes('netlify.app') || window.location.hostname.includes('.');
-        const functionsPath = isLive ? '/.netlify/functions' : 'https://jsonplaceholder.typicode.com';
         
         // --- Main App Logic ---
         async function initializeApp() {
@@ -417,36 +409,17 @@
             articleShortSummary.innerHTML = "";
             
             try {
-                // The URL is now dynamic: it points to Netlify functions if live, or a mock API for local/preview.
-                const apiUrl = isLive ? `${functionsPath}/get-news` : `${functionsPath}/posts?_limit=10`;
-                const response = await fetch(apiUrl);
-
+                const response = await fetch('/.netlify/functions/get-news');
                 if (!response.ok) {
-                    throw new Error(`API error: ${response.statusText}`);
+                    throw new Error(`Netlify function error: ${response.statusText}`);
                 }
                 const data = await response.json();
 
-                // Adapt data based on the source (Live Netlify Function vs. Mock API)
-                let articles;
-                if (isLive) {
-                    articles = data.articles; // Data from our GNews function
-                } else {
-                    // Adapt mock data from jsonplaceholder to our format
-                    articles = data.map(post => ({
-                        title: post.title.charAt(0).toUpperCase() + post.title.slice(1),
-                        description: post.body,
-                        url: '#',
-                        image: `https://placehold.co/800x450/3B82F6/FFFFFF?text=Artikel+${post.id}`,
-                        publishedAt: new Date().toISOString(),
-                        source: { name: 'MockAPI' }
-                    }));
-                }
-
-                if (articles && articles.length > 0) {
-                    const cache = { date: new Date().toISOString().split('T')[0], articles: articles };
+                if (data.articles && data.articles.length > 0) {
+                    const cache = { date: new Date().toISOString().split('T')[0], articles: data.articles };
                     localStorage.setItem('newsCache', JSON.stringify(cache));
-                    articlesCache = articles;
-                } else { throw new Error("No articles found from API."); }
+                    articlesCache = data.articles;
+                } else { throw new Error("No articles found from news function."); }
             } catch (error) {
                 console.error(`Error populating cache:`, error);
                 articleHeadline.textContent = "Fehler beim Laden der Nachrichten.";
@@ -492,19 +465,8 @@
         }
         
         async function analyzeText(title, description) {
-            if (!isLive) {
-                // In preview mode, return a mock response to avoid errors.
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                return {
-                    ueberschrift: `KI-Analyse: ${title}`,
-                    kurze_zusammenfassung: `Dies ist eine <strong>KI-generierte</strong> Kurzzusammenfassung. Der Kern des Artikels dreht sich um <strong>relevante</strong> Inhalte, die für den <strong>Leser</strong> von Interesse sind.`,
-                    lange_zusammenfassung: `Die simulierte lange Zusammenfassung geht hier tiefer ins Detail. Sie erläutert die verschiedenen Aspekte des Themas und bietet einen umfassenderen Überblick, der für die Sprachausgabe geeignet ist.`,
-                    schlagwoerter: ["KI-generierte", "relevante", "Leser"]
-                };
-            }
             try {
-                // This part runs only when the site is live on Netlify
-                const response = await fetch(`${functionsPath}/summarize`, { 
+                const response = await fetch('/.netlify/functions/summarize', { 
                     method: 'POST',
                     body: JSON.stringify({ title, description })
                 });
@@ -517,10 +479,24 @@
             }
         }
         
+        // UPDATED: Function to call our new, robust text-to-speech Netlify function.
         async function getPremiumAudio(text) {
              if (!text) return null;
-             console.warn("Premium TTS function not implemented. Falling back to browser speech synthesis.");
-             return null; 
+             try {
+                const response = await fetch('/.netlify/functions/text-to-speech', { 
+                    method: 'POST',
+                    body: JSON.stringify({ text })
+                });
+                if (!response.ok) {
+                    throw new Error('Backend text-to-speech function failed.');
+                }
+                const data = await response.json();
+                return data.audioContent; // The backend function returns { audioContent: "..." }
+             } catch(error) {
+                 console.error("Error fetching premium audio:", error);
+                 addMessage("Die Premium-Sprachausgabe konnte nicht erzeugt werden.", 'model');
+                 return null; 
+             }
         }
         
         function updateSourceInfo(date, name, link) {
@@ -531,7 +507,6 @@
         function resetPlayer() {
             audioPlayer.pause();
             audioPlayer.src = "";
-            if(synth) synth.cancel();
             progressBar.style.width = '0%';
             playIcon.classList.remove('hidden');
             pauseIcon.classList.add('hidden');
@@ -544,55 +519,20 @@
             pauseIcon.classList.remove('hidden');
             
             const textToSpeak = `${articleHeadline.textContent}. ${longSummaryForTTS}`;
+            // This now calls our new, robust audio generation function.
             const audioContent = await getPremiumAudio(textToSpeak);
             
             if (audioContent) {
                 audioPlayer.src = `data:audio/mp3;base64,${audioContent}`;
-                audioPlayer.play();
-            } else {
-                playWithBrowserTTS(textToSpeak);
-            }
-        }
-
-        function playWithBrowserTTS(text) {
-            if (synth.speaking) synth.cancel();
-
-            setTimeout(() => {
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'de-DE';
-                utterance.volume = audioPlayer.volume;
-                if (germanVoice) utterance.voice = germanVoice;
-
-                let timer;
-                utterance.onstart = () => {
-                    playIcon.classList.add('hidden');
-                    pauseIcon.classList.remove('hidden');
-                    let lastTime = 0;
-                    timer = setInterval(() => {
-                        lastTime += 100;
-                        const estimatedDuration = text.length * 60;
-                        const progress = (lastTime / estimatedDuration) * 100;
-                        progressBar.style.width = `${Math.min(progress, 100)}%`;
-                    }, 100);
-                };
-
-                utterance.onend = () => {
-                    clearInterval(timer);
-                    progressBar.style.width = '100%';
-                    playIcon.classList.remove('hidden');
-                    pauseIcon.classList.add('hidden');
-                    handleAutoPlayNext();
-                };
-
-                 utterance.onerror = (event) => {
-                    clearInterval(timer);
-                    console.error("Browser TTS failed:", event.error);
-                    addMessage("Sprachausgabe fehlgeschlagen. Ihr Browser unterstützt möglicherweise keine deutsche Sprachausgabe.", 'model');
+                audioPlayer.play().catch(e => {
+                    console.error("Audio playback failed:", e);
                     resetPlayer();
-                };
-                
-                synth.speak(utterance);
-            }, 250);
+                    addMessage("Fehler bei der Audiowiedergabe.", "model");
+                });
+            } else {
+                // This case now only happens if the API call itself fails.
+                resetPlayer();
+            }
         }
         
         function handleAutoPlayNext() {
@@ -604,20 +544,8 @@
         }
 
         playPauseButton.addEventListener('click', () => {
-            if (synth.speaking) {
-                synth.pause();
-                playIcon.classList.remove('hidden');
-                pauseIcon.classList.add('hidden');
-                return;
-            }
-            if (synth.paused) {
-                synth.resume();
-                playIcon.classList.add('hidden');
-                pauseIcon.classList.remove('hidden');
-                return;
-            }
-
-            if (!audioPlayer.src && !synth.speaking) {
+            // Simplified logic: The button now only controls the <audio> element.
+            if (!audioPlayer.src) {
                  playCurrentArticle();
                  return;
             }
@@ -695,17 +623,8 @@
         });
 
         async function getChatResponse(context, userMessage) {
-             if (!isLive) {
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                if (userMessage.toLowerCase().includes("berlin")) {
-                     return "Ja, der Artikel erwähnt, dass die Forscher, die das KI-System entwickelt haben, aus Berlin stammen.";
-                 } else {
-                     return "Diese Information ist nicht direkt in dem Artikel enthalten. Eine allgemeine Recherche ergibt, dass KI in der Medizin ein schnell wachsendes Feld mit vielen ethischen Diskussionen ist.";
-                 }
-            }
             try {
-                // NETLIFY: Calling our secure chat function
-                const response = await fetch(`${functionsPath}/chat`, { 
+                const response = await fetch('/.netlify/functions/chat', { 
                     method: 'POST',
                     body: JSON.stringify({ context, userMessage })
                 });
@@ -738,18 +657,27 @@
                   loadingMessage.removeAttribute('id');
               }
         }
-        
-        function initializeTTS() {
-            function findGermanVoice() {
-                germanVoice = synth.getVoices().find(voice => voice.lang === 'de-DE');
-            }
-            synth.onvoiceschanged = findGermanVoice;
-            findGermanVoice();
-        }
 
         // --- Start ---
         initializeApp();
-        initializeTTS();
     </script>
 </body>
 </html>
+```
+
+### Nächste Schritte
+
+1.  **Neue Datei erstellen:** Erstelle in deinem Projekt auf GitHub im Ordner `netlify/functions/` eine neue Datei namens `text-to-speech.js` und füge den Code aus dem ersten Block ein.
+2.  **Bestehende Datei aktualisieren:** Bearbeite deine `index.html` auf GitHub und ersetze den gesamten Inhalt mit dem Code aus dem zweiten Block.
+3.  **Warten:** Netlify wird die Änderungen automatisch erkennen und deine Seite neu deployen.
+
+### Sehr wichtiger letzter Schritt
+
+Dein bestehender API-Schlüssel hat die Berechtigung für die "Generative Language API". Er braucht aber auch die Berechtigung für die neue "Text-to-Speech API".
+
+* Gehe in deine **Google Cloud Console**.
+* Navigiere zu **"APIs & Dienste" -> "Bibliothek"**.
+* Suche nach **"Cloud Text-to-Speech API"**.
+* Klicke auf **"Aktivieren"** (Enable).
+
+Danach sollte das Herzstück deiner App in bester Qualität funktionier

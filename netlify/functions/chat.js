@@ -11,8 +11,9 @@ exports.handler = async function(event, context) {
     // Get the article context and user message sent from the frontend.
     const { context, userMessage } = JSON.parse(event.body);
 
-    // Construct the detailed prompt for the AI.
-    const prompt = `Du bist ein KI-Assistent. Beantworte die folgende Frage des Nutzers: "${userMessage}". Deine primäre Wissensquelle ist der folgende Artikel: ${context}. Falls die Antwort im Artikel zu finden ist, gib sie direkt wieder. Falls die Information nicht im Artikel enthalten ist, nutze dein allgemeines Wissen und antworte mit dem Satz: "Diese Information ist nicht direkt in dem Artikel enthalten. Eine Recherche hat jedoch ergeben, dass..." gefolgt von der Antwort.`;
+    // Construct the detailed and stricter prompt for the AI.
+    // This prompt forbids the AI from using external knowledge to ensure factual reliability.
+    const prompt = `Du bist ein präziser und faktenbasierter KI-Assistent. Deine einzige Aufgabe ist es, die Frage des Nutzers ausschließlich auf Basis des folgenden Artikelkontexts zu beantworten. Antworte niemals mit Wissen, das außerhalb dieses Kontexts liegt. Wenn die Antwort auf die Frage im Artikel enthalten ist, gib sie präzise wieder. Wenn die Antwort nicht im Artikel zu finden ist, antworte ausschließlich mit dem Satz: "Diese Information ist im vorliegenden Artikel nicht enthalten." Gib keine zusätzlichen Informationen oder Erklärungen. Frage: "${userMessage}". Artikelkontext: ${context}`;
 
     const payload = { 
         contents: [{ role: "user", parts: [{ text: prompt }] }] 

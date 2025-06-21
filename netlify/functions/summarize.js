@@ -4,7 +4,6 @@
 exports.handler = async function(event, context) {
   // Retrieve the secret Gemini API key from environment variables.
   const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-  // UPDATED: Using a more current and reliable model name.
   const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
 
   try {

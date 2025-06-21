@@ -4,7 +4,6 @@
 exports.handler = async function(event, context) {
   // Retrieve the secret Gemini API key from environment variables.
   const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-  // UPDATED: Using a more current and reliable model name.
   const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
 
   try {
@@ -12,7 +11,6 @@ exports.handler = async function(event, context) {
     const { context, userMessage } = JSON.parse(event.body);
 
     // Construct the detailed and stricter prompt for the AI.
-    // This prompt forbids the AI from using external knowledge to ensure factual reliability.
     const prompt = `Du bist ein präziser und faktenbasierter KI-Assistent. Deine einzige Aufgabe ist es, die Frage des Nutzers ausschließlich auf Basis des folgenden Artikelkontexts zu beantworten. Antworte niemals mit Wissen, das außerhalb dieses Kontexts liegt. Wenn die Antwort auf die Frage im Artikel enthalten ist, gib sie präzise wieder. Wenn die Antwort nicht im Artikel zu finden ist, antworte ausschließlich mit dem Satz: "Diese Information ist im vorliegenden Artikel nicht enthalten." Gib keine zusätzlichen Informationen oder Erklärungen. Frage: "${userMessage}". Artikelkontext: ${context}`;
 
     const payload = { 

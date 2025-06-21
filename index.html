@@ -16,11 +16,8 @@
             --text-tertiary: #6c757d;
             --shadow-color: rgba(0, 0, 0, 0.05);
             --focus-ring-color: #3b82f6;
-            --player-bg: #ffffff;
-            --overlay-color-start: rgba(0,0,0,0.2);
-            --overlay-color-end: rgba(0,0,0,0.8);
-            --player-text-primary: #ffffff;
-            --player-text-secondary: rgba(255,255,255,0.8);
+            --player-text-primary: #212529;
+            --player-text-secondary: #495057;
         }
 
         body.dark {
@@ -31,9 +28,8 @@
             --text-secondary: #a3a3a3;
             --text-tertiary: #737373;
             --shadow-color: rgba(0, 0, 0, 0.2);
-            --player-bg: #181818;
-            --overlay-color-start: rgba(0,0,0,0.3);
-            --overlay-color-end: rgba(0,0,0,0.9);
+            --player-text-primary: #e5e5e5;
+            --player-text-secondary: #a3a3a3;
         }
 
         body {
@@ -85,182 +81,134 @@
             font-weight: 600;
         }
         
-        .app-menu {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        #theme-switcher {
-            background: none; border: none; cursor: pointer; padding: 0.5rem; border-radius: 50%;
-            color: var(--text-secondary); transition: background-color 0.2s;
-        }
-        #theme-switcher:hover { background-color: var(--border-color); }
-        #theme-switcher svg { width: 1.5rem; height: 1.5rem; }
-        
-        main {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column; /* Mobile First: Stack player and chat */
-            overflow: hidden;
-        }
-
-        #player-container {
-            width: 100%;
-            flex-grow: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-            overflow: hidden;
-        }
-
         #player-card {
             width: 100%;
             height: 100%;
-            background-color: var(--player-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 1rem;
-            box-shadow: 0 10px 25px var(--shadow-color);
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            position: relative;
+            background-color: var(--bg-secondary);
+        }
+
+        #image-container {
             background-size: cover;
             background-position: center;
-            transition: background-image 1s ease-in-out;
+            /* Filter Option 1: Modern & Klar */
+            filter: saturate(110%) contrast(105%) brightness(98%);
+            animation: ken-burns-top 20s ease-out infinite alternate-reverse both;
         }
 
-        .card-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, var(--overlay-color-start) 0%, var(--overlay-color-end) 80%);
-            display: flex; flex-direction: column;
+        @keyframes ken-burns-top {
+            0% {
+                transform: scale(1) translateY(0);
+                transform-origin: 50% 16%;
+            }
+            100% {
+                transform: scale(1.1) translateY(-5px);
+                transform-origin: top;
+            }
         }
         
-        #article-text-container {
-            padding: 1.5rem;
-            overflow-y: auto;
-            flex-grow: 1;
+        .nav-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.2);
+            color: white;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+            z-index: 10;
+            border: none;
+            cursor: pointer;
         }
-        
-        #article-headline {
-            font-size: 1.75rem; font-weight: 700; line-height: 1.25; margin-bottom: 1.5rem;
-            color: var(--player-text-primary); text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+        .nav-button:hover {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .nav-button svg {
+            width: 24px;
+            height: 24px;
         }
 
-        #article-short-summary {
-            font-size: 1.1rem; line-height: 1.8; color: var(--player-text-secondary);
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5); margin-bottom: 2rem;
+        .info-controls-container {
+            color: var(--player-text-primary);
         }
-        #article-short-summary strong { color: var(--player-text-primary); font-weight: 600; }
-        
-        #source-info {
-            font-size: 0.875rem; color: rgba(255,255,255,0.6); padding-top: 1rem;
-            border-top: 1px solid rgba(255,255,255,0.2);
+        .summary-container p {
+            color: var(--player-text-secondary);
         }
-        #source-info a { color: #529dff; text-decoration: none; font-weight: 500; }
-        #source-info a:hover { text-decoration: underline; }
+         .summary-container a {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .summary-container a:hover {
+            text-decoration: underline;
+        }
 
-        #player-controls {
-            padding: 1rem;
-            flex-shrink: 0;
-        }
-        .controls-top {
-            display: flex; align-items: center; justify-content: center;
-            gap: 1.5rem; margin-bottom: 0.75rem;
-        }
         .control-button {
-            background: none; border: none; cursor: pointer; color: var(--player-text-secondary);
+            background: none; border: none; cursor: pointer; color: var(--text-tertiary);
             padding: 0.5rem; border-radius: 50%; display: flex; align-items: center;
             justify-content: center; transition: background-color 0.2s, color 0.2s;
         }
         .control-button:hover {
-            background-color: rgba(255,255,255,0.1);
-            color: var(--player-text-primary);
+            background-color: var(--border-color);
+            color: var(--text-primary);
         }
-        .control-button:disabled { color: rgba(255,255,255,0.3); cursor: not-allowed; }
+        .control-button:disabled { color: var(--border-color); cursor: not-allowed; }
         .control-button svg { width: 1.5rem; height: 1.5rem; }
-        #play-pause-button svg { width: 2.5rem; height: 2.5rem; }
-        
-        #progress-bar-container {
-            width: 100%; height: 4px; background-color: rgba(255,255,255,0.2);
-            border-radius: 2px; cursor: pointer;
-        }
-        #progress-bar {
-            width: 0%; height: 100%; background-color: var(--player-text-primary);
-            border-radius: 2px;
-        }
+        #play-pause-button svg { width: 3rem; height: 3rem; color: var(--text-primary); }
+        #play-pause-button:hover svg { color: #3b82f6; }
+
 
         .volume-control-container { position: relative; }
-        #volume-slider-popup {
-            position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
-            background-color: var(--player-bg); border: 1px solid var(--border-color);
-            border-radius: 0.5rem; padding: 1rem 0.5rem; margin-bottom: 0.5rem;
+        #volume-slider-container {
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--bg-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
             box-shadow: 0 4px 15px var(--shadow-color);
-        }
-        input[type="range"] {
-            -webkit-appearance: none; appearance: none;
-            width: 8px; height: 100px; background: var(--border-color);
-            outline: none; border-radius: 4px;
-        }
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none; appearance: none;
-            width: 20px; height: 20px; background: var(--text-tertiary);
-            cursor: pointer; border-radius: 50%;
+            border: 1px solid var(--border-color);
+            transition: opacity 0.2s, visibility 0.2s;
         }
 
-        #chat-sidebar {
-            width: 100%;
-            height: 50vh; 
-            max-width: 100%;
-            background-color: var(--bg-secondary);
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            flex-shrink: 0;
+        #volume-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 120px;
+            height: 6px;
+            background: var(--border-color);
+            outline: none;
+            border-radius: 3px;
         }
-        #chat-header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 1rem 1.5rem; font-weight: 600; font-size: 1.125rem;
-            border-bottom: 1px solid var(--border-color);
-            flex-shrink: 0;
-        }
-        #chat-messages {
-            flex-grow: 1; padding: 1rem; overflow-y: auto;
-            display: flex; flex-direction: column; gap: 1rem;
-        }
-        .chat-message { padding: 0.75rem 1rem; border-radius: 0.75rem; max-width: 80%; word-wrap: break-word; }
-        .user-message {
-            background-color: #3b82f6; color: white;
-            align-self: flex-end; border-bottom-right-radius: 0.25rem;
-        }
-        .model-message {
-            background-color: var(--bg-primary); border: 1px solid var(--border-color);
-            align-self: flex-start; border-bottom-left-radius: 0.25rem;
-        }
-        #chat-form { display: flex; padding: 1rem; border-top: 1px solid var(--border-color); }
-        #chat-input {
-            flex-grow: 1; background-color: var(--bg-primary); border: 1px solid var(--border-color);
-            border-radius: 9999px; padding: 0.75rem 1rem; color: var(--text-primary);
-        }
-        #chat-send { background: none; border: none; cursor: pointer; padding: 0.5rem; color: #3b82f6; margin-left: 0.5rem; }
 
-        .hidden { display: none; }
+        #volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: var(--text-tertiary);
+            cursor: pointer;
+            border-radius: 50%;
+        }
+         #volume-slider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: var(--text-tertiary);
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        .hidden { display: none !important; visibility: hidden; opacity: 0; }
         .dark #icon-sun { display: block; } .dark #icon-moon { display: none; } #icon-sun { display: none; }
-
         :focus-visible { outline: 2px solid var(--focus-ring-color); outline-offset: 2px; border-radius: 4px; }
         
-        @media (min-width: 1024px) {
-            main { flex-direction: row; }
-            #player-container { padding: 2rem; width: 66.6667%;}
-            #chat-sidebar { 
-                width: 33.3333%; height: 100%; max-width: 400px; 
-                border-top: none; border-left: 1px solid var(--border-color);
-            }
-            #article-text-container { padding: 2.5rem; }
-            #article-headline { font-size: 2.5rem; }
-            #article-short-summary { font-size: 1.25rem; }
-        }
     </style>
 </head>
 <body>
@@ -278,57 +226,56 @@
             </nav>
         </header>
 
-        <main>
-            <div id="player-container">
-                <article id="player-card">
-                    <div class="card-overlay">
-                        <div id="article-text-container">
-                            <h1 id="article-headline">Willkommen bei NeuraFeed</h1>
-                            <p id="article-short-summary">Drücke auf Play, um mit den neuesten Nachrichten zu starten.</p>
-                            <div id="source-info"></div>
-                        </div>
-                         <div id="player-controls">
-                             <div style="width: 100%;">
-                                 <div class="controls-top">
-                                     <button class="control-button" id="prev-button" aria-label="Zum vorherigen Artikel" title="Zum vorherigen Artikel">
-                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 16.811c0 .864-.933 1.405-1.683.977l-7.108-4.062a1.125 1.125 0 010-1.953l7.108-4.062A1.125 1.125 0 0121 8.189v8.622zM3 8.189v8.622c0 .621.504 1.125 1.125 1.125h1.5c.621 0 1.125-.504 1.125-1.125V8.189c0-.621-.504-1.125-1.125-1.125h-1.5A1.125 1.125 0 003 8.189z" /></svg>
-                                     </button>
-                                     <button class="control-button" id="play-pause-button" aria-label="Abspielen oder pausieren" title="Abspielen oder pausieren">
-                                         <svg id="icon-play" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15.91 11.672a.375.375 0 010 .656l-5.603 3.113a.375.375 0 01-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112z" /></svg>
-                                         <svg id="icon-pause" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="hidden"><path stroke-linecap="round" stroke-linejoin="round" d="M14.25 9v6m-4.5 0V9M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                         <svg id="icon-loading" class="hidden animate-spin h-10 w-10 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                     </button>
-                                     <button class="control-button" id="next-button" aria-label="Zum nächsten Artikel" title="Zum nächsten Artikel">
-                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.811V7.189a1.125 1.125 0 011.683-.977l7.108 4.062a1.125 1.125 0 010 1.954l-7.108 4.062A1.125 1.125 0 013 16.811zM21 7.189v9.622a1.125 1.125 0 01-1.125 1.125h-1.5a1.125 1.125 0 01-1.125-1.125V7.189a1.125 1.125 0 011.125-1.125h1.5A1.125 1.125 0 0121 7.189z" /></svg>
-                                     </button>
-                                      <div class="volume-control-container">
-                                          <button class="control-button" id="volume-button" aria-label="Lautstärke ändern" title="Lautstärke ändern">
-                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" /></svg>
-                                         </button>
-                                         <div id="volume-slider-popup" class="hidden">
-                                              <input type="range" min="0" max="1" step="0.01" value="1" orient="vertical">
-                                         </div>
-                                     </div>
-                                 </div>
-                                  <div id="progress-bar-container">
-                                     <div id="progress-bar"></div>
-                                  </div>
-                             </div>
-                         </div>
+        <main class="flex-grow flex flex-col lg:flex-row">
+            <!-- Main Content Area -->
+            <div id="player-card" class="w-full lg:w-2/3 flex flex-col">
+                <!-- Image Container with Ken Burns Effect -->
+                <div id="image-container" class="relative w-full flex-grow overflow-hidden">
+                    <!-- Navigation buttons are overlaid on the image -->
+                    <button id="prev-button" class="nav-button left-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+                    </button>
+                    <button id="next-button" class="nav-button right-4">
+                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+                    </button>
+                </div>
+                 <!-- Info & Controls Container -->
+                <div class="info-controls-container flex-shrink-0 bg-[var(--bg-secondary)] p-6 flex flex-col md:flex-row items-center gap-6">
+                    <div class="summary-container w-full md:w-2/3">
+                        <p id="article-short-summary-desktop" class="text-base leading-relaxed mb-3"></p>
+                        <div id="source-info-desktop" class="text-sm text-[var(--text-tertiary)]"></div>
                     </div>
-                </article>
+                    <div id="player-controls-desktop" class="w-full md:w-1/3 flex items-center justify-center gap-4">
+                        <div class="volume-control-container">
+                             <button id="volume-button-desktop" class="control-button">
+                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" /></svg>
+                            </button>
+                             <div id="volume-slider-container-desktop" class="hidden">
+                                <input type="range" id="volume-slider-desktop" min="0" max="1" step="0.01" value="1">
+                            </div>
+                        </div>
+                        <button id="play-pause-button" class="control-button p-2">
+                             <svg id="icon-play" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15.91 11.672a.375.375 0 010 .656l-5.603 3.113a.375.375 0 01-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112z" /></svg>
+                             <svg id="icon-pause" class="hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.25 9v6m-4.5 0V9M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                             <svg id="icon-loading" class="hidden animate-spin h-12 w-12 text-[var(--text-primary)]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        </button>
+                         <div class="w-8"></div> <!-- Spacer -->
+                    </div>
+                </div>
             </div>
-            <aside id="chat-sidebar">
-                 <div id="chat-header">
-                     <span>Fragen zum Artikel</span>
-                     <button id="reset-chat-button" aria-label="Chat zurücksetzen" title="Chat zurücksetzen" class="control-button" style="color: var(--text-secondary);">
-                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0011.812-2.332M3.98 8.223l3.181-3.182a8.25 8.25 0 0111.812 2.332M9 12.013v.001" /></svg>
+
+            <!-- Chat Sidebar -->
+            <aside id="chat-sidebar" class="w-full lg:w-1/3 h-full flex flex-col border-t lg:border-t-0 lg:border-l border-[var(--border-color)]">
+                 <div id="chat-header" class="p-4 border-b border-[var(--border-color)] flex justify-between items-center flex-shrink-0">
+                     <span class="font-semibold">Fragen zum Artikel</span>
+                      <button id="reset-chat-button" aria-label="Chat zurücksetzen" title="Chat zurücksetzen" class="control-button">
+                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0011.812-2.332M3.98 8.223l3.181-3.182a8.25 8.25 0 0111.812 2.332M9 12.013v.001" /></svg>
                      </button>
                  </div>
-                 <div id="chat-messages"></div>
-                 <form id="chat-form">
-                     <input id="chat-input" type="text" placeholder="Ihre Frage..." autocomplete="off">
-                     <button id="chat-send" aria-label="Frage senden">
+                 <div id="chat-messages" class="flex-grow p-4 overflow-y-auto flex flex-col gap-4"></div>
+                 <form id="chat-form" class="p-2 border-t border-[var(--border-color)] flex items-center gap-2">
+                     <input id="chat-input" type="text" placeholder="Ihre Frage..." autocomplete="off" class="w-full bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-full py-2 px-4 focus:ring-2 focus:ring-[var(--focus-ring-color)] focus:outline-none">
+                     <button id="chat-send" aria-label="Frage senden" class="p-2 text-[#3b82f6] rounded-full hover:bg-blue-50 dark:hover:bg-gray-800">
                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" /></svg>
                      </button>
                  </form>
@@ -337,41 +284,19 @@
     </div>
 
     <script type="module">
-        // --- Theme Switcher Logic ---
-        const themeSwitcher = document.getElementById('theme-switcher');
-        const body = document.body;
-
-        const applyTheme = (theme) => {
-            if (theme === 'dark') body.classList.add('dark');
-            else body.classList.remove('dark');
-        };
-
-        themeSwitcher.addEventListener('click', () => {
-            const newTheme = body.classList.contains('dark') ? 'light' : 'dark';
-            localStorage.setItem('theme', newTheme);
-            applyTheme(newTheme);
-        });
-        
-        const savedTheme = localStorage.getItem('theme');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        applyTheme(savedTheme || (prefersDark ? 'dark' : 'light'));
-        
         // --- DOM Elements ---
-        const playerCard = document.getElementById('player-card');
-        const articleHeadline = document.getElementById('article-headline');
-        const articleShortSummary = document.getElementById('article-short-summary');
+        const imageContainer = document.getElementById('image-container');
         const prevButton = document.getElementById('prev-button');
-        const playPauseButton = document.getElementById('play-pause-button');
         const nextButton = document.getElementById('next-button');
+        const summaryDesktop = document.getElementById('article-short-summary-desktop');
+        const sourceInfoDesktop = document.getElementById('source-info-desktop');
+        const playPauseButton = document.getElementById('play-pause-button');
+        const volumeButtonDesktop = document.getElementById('volume-button-desktop');
+        const volumeSliderContainerDesktop = document.getElementById('volume-slider-container-desktop');
+        const volumeSliderDesktop = document.getElementById('volume-slider-desktop');
         const playIcon = document.getElementById('icon-play');
         const pauseIcon = document.getElementById('icon-pause');
         const loadingIcon = document.getElementById('icon-loading');
-        const progressBar = document.getElementById('progress-bar');
-        const sourceInfo = document.getElementById('source-info');
-        const volumeButton = document.getElementById('volume-button');
-        const volumeSliderPopup = document.getElementById('volume-slider-popup');
-        const volumeSlider = volumeSliderPopup.querySelector('input');
-        const chatSidebar = document.getElementById('chat-sidebar');
         const chatMessages = document.getElementById('chat-messages');
         const chatForm = document.getElementById('chat-form');
         const chatInput = document.getElementById('chat-input');
@@ -395,20 +320,18 @@
             if (articlesCache.length === 0) await populateArticleCache();
             
             if (articlesCache.length > 0) {
-                await displayArticle(currentArticleIndex, false);
+                await displayArticle(currentArticleIndex, true);
             } else {
-                 articleHeadline.textContent = "Keine Nachrichten gefunden";
-                 articleShortSummary.innerHTML = "Es konnten keine aktuellen Nachrichten geladen werden. Bitte versuchen Sie es später erneut.";
-                 playPauseButton.disabled = true;
-                 nextButton.disabled = true;
-                 prevButton.disabled = true;
+                summaryDesktop.textContent = "Keine Nachrichten gefunden. Bitte versuchen Sie es später erneut.";
+                playPauseButton.disabled = true;
+                nextButton.disabled = true;
+                prevButton.disabled = true;
             }
         }
 
         async function populateArticleCache() {
             isFetching = true;
-            articleHeadline.textContent = "Lade Nachrichten des Tages...";
-            articleShortSummary.innerHTML = "";
+            summaryDesktop.textContent = "Lade Nachrichten des Tages...";
             
             try {
                 const response = await fetch('/.netlify/functions/get-news');
@@ -424,8 +347,7 @@
                 } else { throw new Error("No articles found from news function."); }
             } catch (error) {
                 console.error(`Error populating cache:`, error);
-                articleHeadline.textContent = "Fehler beim Laden der Nachrichten.";
-                articleShortSummary.innerHTML = "Die Verbindung zum Nachrichten-Server konnte nicht hergestellt werden. Bitte versuchen Sie es später erneut.";
+                summaryDesktop.textContent = "Fehler beim Laden der Nachrichten. Die Verbindung zum Server konnte nicht hergestellt werden.";
             } finally { isFetching = false; }
         }
 
@@ -435,35 +357,38 @@
             
             resetPlayer();
             
-            playerCard.style.backgroundImage = `url(${article.image || `https://placehold.co/800x450/f1f3f5/6c757d?text=Kein+Bild`})`;
-            updateSourceInfo(article.publishedAt, article.source.name, article.url);
+            imageContainer.style.backgroundImage = `url(${article.image || `https://placehold.co/1200/800/f1f3f5/6c757d?text=Kein+Bild`})`;
             
             currentArticleIndex = index;
             prevButton.disabled = index === 0;
-            nextButton.disabled = index === articlesCache.length - 1;
+            nextButton.disabled = index >= articlesCache.length - 1;
             
-            if (analyze) {
-                 articleHeadline.textContent = "Analysiere & erweitere Artikel...";
-                 articleShortSummary.innerHTML = "Bitte einen Moment Geduld...";
-                
-                 const metrics = await analyzeText(article.title, article.description);
-                 
-                 articleHeadline.textContent = metrics?.ueberschrift || article.title;
-                 longSummaryForTTS = metrics?.lange_zusammenfassung || article.description || "";
-                 let shortSummary = metrics?.kurze_zusammenfassung || longSummaryForTTS;
+            summaryDesktop.textContent = "Analysiere & erweitere Artikel...";
+            sourceInfoDesktop.innerHTML = "";
 
-                 if (shortSummary && metrics?.schlagwoerter) {
-                     metrics.schlagwoerter.forEach(word => {
-                         const regex = new RegExp(`\\b(${word})\\b`, 'gi');
-                         shortSummary = shortSummary.replace(regex, '<strong>$1</strong>');
-                     });
+            const metrics = await analyzeText(article.title, article.description);
+            
+            longSummaryForTTS = metrics?.lange_zusammenfassung || article.description || "";
+            let shortSummary = metrics?.kurze_zusammenfassung || longSummaryForTTS;
+
+             if (shortSummary && metrics?.schlagwoerter) {
+                 metrics.schlagwoerter.forEach(word => {
+                     const regex = new RegExp(`\\b(${word})\\b`, 'gi');
+                     shortSummary = shortSummary.replace(regex, '<strong>$1</strong>');
+                 });
+             }
+             
+            if (!/[.!?]$/.test(shortSummary.trim())) {
+                 let lastPeriod = shortSummary.lastIndexOf('.');
+                 if(lastPeriod > -1) {
+                    shortSummary = shortSummary.substring(0, lastPeriod + 1);
                  }
-                 articleShortSummary.innerHTML = shortSummary;
-            } else {
-                articleHeadline.textContent = article.title;
-                articleShortSummary.innerHTML = article.description;
-                longSummaryForTTS = article.description || "";
             }
+
+            summaryDesktop.innerHTML = shortSummary;
+            
+            const formattedDate = new Date(article.publishedAt).toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
+            sourceInfoDesktop.innerHTML = `${formattedDate} &bull; <a href="${article.url}" target="_blank" rel="noopener noreferrer">Zum Originalartikel</a>`;
         }
         
         async function analyzeText(title, description) {
@@ -500,15 +425,9 @@
              }
         }
         
-        function updateSourceInfo(date, name, link) {
-            const formattedDate = new Date(date).toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
-            sourceInfo.innerHTML = `${formattedDate} &bull; ${name} &bull; <a href="${link}" target="_blank" rel="noopener noreferrer">Originalartikel anzeigen</a>`;
-        }
-        
         function resetPlayer() {
             audioPlayer.pause();
             audioPlayer.src = "";
-            progressBar.style.width = '0%';
             playIcon.classList.remove('hidden');
             pauseIcon.classList.add('hidden');
             loadingIcon.classList.add('hidden');
@@ -518,69 +437,57 @@
         async function playCurrentArticle() {
             if (isFetching) return;
             
-            // --- Start loading ---
             playIcon.classList.add('hidden');
             pauseIcon.classList.add('hidden');
             loadingIcon.classList.remove('hidden');
             playPauseButton.disabled = true;
             
             try {
-                const textToSpeak = `${articleHeadline.textContent}. ${longSummaryForTTS}`;
+                const textToSpeak = longSummaryForTTS;
                 const audioContent = await getPremiumAudio(textToSpeak);
                 
                 if (audioContent) {
                     audioPlayer.src = `data:audio/mp3;base64,${audioContent}`;
-                    // The play() method returns a promise which we should handle.
                     await audioPlayer.play();
-                    // --- Success ---
-                    loadingIcon.classList.add('hidden');
-                    pauseIcon.classList.remove('hidden');
                 } else {
-                    // This case now only happens if the API call itself fails.
                     throw new Error("Audio content could not be generated.");
                 }
             } catch (error) {
-                // --- General failure ---
                 console.error("Failed to play audio:", error);
                 addMessage("Fehler bei der Audiowiedergabe.", "model");
                 resetPlayer();
             } finally {
-                // --- Always re-enable button ---
                 playPauseButton.disabled = false;
             }
         }
         
         function handleAutoPlayNext() {
             if (currentArticleIndex < articlesCache.length - 1) {
-                displayArticle(currentArticleIndex + 1).then(playCurrentArticle);
+                displayArticle(currentArticleIndex + 1, true).then(playCurrentArticle);
             } else {
                 resetPlayer();
             }
         }
 
         playPauseButton.addEventListener('click', () => {
-            // Check if audio has been loaded
-            if (audioPlayer.readyState > 0) {
-                if (audioPlayer.paused) {
-                    audioPlayer.play();
-                } else {
-                    audioPlayer.pause();
-                }
+            if (audioPlayer.readyState > 0 && !audioPlayer.paused) {
+                audioPlayer.pause();
+            } else if (audioPlayer.readyState > 0 && audioPlayer.paused) {
+                 audioPlayer.play();
             } else {
-                // If no audio is loaded, start the process
                 playCurrentArticle();
             }
         });
 
         nextButton.addEventListener('click', () => {
             if (currentArticleIndex < articlesCache.length - 1) {
-                displayArticle(currentArticleIndex + 1).then(playCurrentArticle);
+                displayArticle(currentArticleIndex + 1, true);
             }
         });
 
         prevButton.addEventListener('click', () => {
             if (currentArticleIndex > 0) {
-                displayArticle(currentArticleIndex - 1).then(playCurrentArticle);
+                displayArticle(currentArticleIndex - 1, true);
             }
         });
         
@@ -593,32 +500,27 @@
             playIcon.classList.remove('hidden');
             pauseIcon.classList.add('hidden');
         };
-
-        audioPlayer.addEventListener('timeupdate', () => {
-            if (audioPlayer.duration) {
-                const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
-                progressBar.style.width = `${progress}%`;
-            }
-        });
-
+        
         audioPlayer.addEventListener('ended', handleAutoPlayNext);
         
-        volumeButton.addEventListener('click', (e) => {
+        volumeButtonDesktop.addEventListener('click', (e) => {
             e.stopPropagation();
-            volumeSliderPopup.classList.toggle('hidden');
+            volumeSliderContainerDesktop.classList.toggle('hidden');
         });
-        
-        volumeSlider.addEventListener('input', (e) => {
+        volumeSliderDesktop.addEventListener('input', (e) => {
             audioPlayer.volume = e.target.value;
         });
-        
         document.addEventListener('click', (e) => {
-            if (volumeSliderPopup && !volumeSliderPopup.contains(e.target) && !volumeButton.contains(e.target)) {
-                volumeSliderPopup.classList.add('hidden');
+            if (!volumeSliderContainerDesktop.classList.contains('hidden') && !volumeButtonDesktop.contains(e.target)) {
+                volumeSliderContainerDesktop.classList.add('hidden');
             }
         });
         
         // --- Chat Logic ---
+        resetChatButton.addEventListener('click', () => {
+            chatMessages.innerHTML = '';
+        });
+
         chatForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const userMessage = chatInput.value.trim();
@@ -628,15 +530,11 @@
             chatInput.value = '';
             
             const currentArticle = articlesCache[currentArticleIndex];
-            const context = `Artikel: "${currentArticle.title}. ${longSummaryForTTS || currentArticle.description}"`;
+            const context = `Artikel-Zusammenfassung: "${summaryDesktop.textContent}"`;
             
             addMessage("KI denkt nach...", 'model', true);
             const responseText = await getChatResponse(context, userMessage);
             updateLastModelMessage(responseText);
-        });
-
-        resetChatButton.addEventListener('click', () => {
-            chatMessages.innerHTML = '';
         });
 
         async function getChatResponse(context, userMessage) {

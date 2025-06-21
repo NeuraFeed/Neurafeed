@@ -296,6 +296,7 @@
                                      <button class="control-button" id="play-pause-button" aria-label="Abspielen oder pausieren" title="Abspielen oder pausieren">
                                          <svg id="icon-play" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15.91 11.672a.375.375 0 010 .656l-5.603 3.113a.375.375 0 01-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112z" /></svg>
                                          <svg id="icon-pause" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="hidden"><path stroke-linecap="round" stroke-linejoin="round" d="M14.25 9v6m-4.5 0V9M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                         <svg id="icon-loading" class="hidden animate-spin h-10 w-10 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                                      </button>
                                      <button class="control-button" id="next-button" aria-label="Zum nächsten Artikel" title="Zum nächsten Artikel">
                                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.811V7.189a1.125 1.125 0 011.683-.977l7.108 4.062a1.125 1.125 0 010 1.954l-7.108 4.062A1.125 1.125 0 013 16.811zM21 7.189v9.622a1.125 1.125 0 01-1.125 1.125h-1.5a1.125 1.125 0 01-1.125-1.125V7.189a1.125 1.125 0 011.125-1.125h1.5A1.125 1.125 0 0121 7.189z" /></svg>
@@ -364,6 +365,7 @@
         const nextButton = document.getElementById('next-button');
         const playIcon = document.getElementById('icon-play');
         const pauseIcon = document.getElementById('icon-pause');
+        const loadingIcon = document.getElementById('icon-loading');
         const progressBar = document.getElementById('progress-bar');
         const sourceInfo = document.getElementById('source-info');
         const volumeButton = document.getElementById('volume-button');
@@ -479,7 +481,6 @@
             }
         }
         
-        // UPDATED: Function to call our new, robust text-to-speech Netlify function.
         async function getPremiumAudio(text) {
              if (!text) return null;
              try {
@@ -491,7 +492,7 @@
                     throw new Error('Backend text-to-speech function failed.');
                 }
                 const data = await response.json();
-                return data.audioContent; // The backend function returns { audioContent: "..." }
+                return data.audioContent; 
              } catch(error) {
                  console.error("Error fetching premium audio:", error);
                  addMessage("Die Premium-Sprachausgabe konnte nicht erzeugt werden.", 'model');
@@ -510,28 +511,42 @@
             progressBar.style.width = '0%';
             playIcon.classList.remove('hidden');
             pauseIcon.classList.add('hidden');
+            loadingIcon.classList.add('hidden');
+            playPauseButton.disabled = false;
         }
 
         async function playCurrentArticle() {
             if (isFetching) return;
             
+            // --- Start loading ---
             playIcon.classList.add('hidden');
-            pauseIcon.classList.remove('hidden');
+            pauseIcon.classList.add('hidden');
+            loadingIcon.classList.remove('hidden');
+            playPauseButton.disabled = true;
             
-            const textToSpeak = `${articleHeadline.textContent}. ${longSummaryForTTS}`;
-            // This now calls our new, robust audio generation function.
-            const audioContent = await getPremiumAudio(textToSpeak);
-            
-            if (audioContent) {
-                audioPlayer.src = `data:audio/mp3;base64,${audioContent}`;
-                audioPlayer.play().catch(e => {
-                    console.error("Audio playback failed:", e);
-                    resetPlayer();
-                    addMessage("Fehler bei der Audiowiedergabe.", "model");
-                });
-            } else {
-                // This case now only happens if the API call itself fails.
+            try {
+                const textToSpeak = `${articleHeadline.textContent}. ${longSummaryForTTS}`;
+                const audioContent = await getPremiumAudio(textToSpeak);
+                
+                if (audioContent) {
+                    audioPlayer.src = `data:audio/mp3;base64,${audioContent}`;
+                    // The play() method returns a promise which we should handle.
+                    await audioPlayer.play();
+                    // --- Success ---
+                    loadingIcon.classList.add('hidden');
+                    pauseIcon.classList.remove('hidden');
+                } else {
+                    // This case now only happens if the API call itself fails.
+                    throw new Error("Audio content could not be generated.");
+                }
+            } catch (error) {
+                // --- General failure ---
+                console.error("Failed to play audio:", error);
+                addMessage("Fehler bei der Audiowiedergabe.", "model");
                 resetPlayer();
+            } finally {
+                // --- Always re-enable button ---
+                playPauseButton.disabled = false;
             }
         }
         
@@ -544,15 +559,16 @@
         }
 
         playPauseButton.addEventListener('click', () => {
-            // Simplified logic: The button now only controls the <audio> element.
-            if (!audioPlayer.src) {
-                 playCurrentArticle();
-                 return;
-            }
-            if (audioPlayer.paused) {
-                audioPlayer.play();
+            // Check if audio has been loaded
+            if (audioPlayer.readyState > 0) {
+                if (audioPlayer.paused) {
+                    audioPlayer.play();
+                } else {
+                    audioPlayer.pause();
+                }
             } else {
-                audioPlayer.pause();
+                // If no audio is loaded, start the process
+                playCurrentArticle();
             }
         });
 
@@ -570,6 +586,7 @@
         
         audioPlayer.onplay = () => {
             playIcon.classList.add('hidden');
+            loadingIcon.classList.add('hidden');
             pauseIcon.classList.remove('hidden');
         };
         audioPlayer.onpause = () => {
@@ -663,21 +680,3 @@
     </script>
 </body>
 </html>
-```
-
-### Nächste Schritte
-
-1.  **Neue Datei erstellen:** Erstelle in deinem Projekt auf GitHub im Ordner `netlify/functions/` eine neue Datei namens `text-to-speech.js` und füge den Code aus dem ersten Block ein.
-2.  **Bestehende Datei aktualisieren:** Bearbeite deine `index.html` auf GitHub und ersetze den gesamten Inhalt mit dem Code aus dem zweiten Block.
-3.  **Warten:** Netlify wird die Änderungen automatisch erkennen und deine Seite neu deployen.
-
-### Sehr wichtiger letzter Schritt
-
-Dein bestehender API-Schlüssel hat die Berechtigung für die "Generative Language API". Er braucht aber auch die Berechtigung für die neue "Text-to-Speech API".
-
-* Gehe in deine **Google Cloud Console**.
-* Navigiere zu **"APIs & Dienste" -> "Bibliothek"**.
-* Suche nach **"Cloud Text-to-Speech API"**.
-* Klicke auf **"Aktivieren"** (Enable).
-
-Danach sollte das Herzstück deiner App in bester Qualität funktionier
